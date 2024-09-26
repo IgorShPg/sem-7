@@ -16,3 +16,31 @@ T choose_random(const std::vector<T>& players) {
 }
 
 
+class Player {
+public:
+    //virtual void move(const std::map<int, mafia::shared_ptr<Player>>& players, int id, Logger& Log, int round) const = 0; 
+    //virtual void vote(const std::map<int, mafia::shared_ptr<Player>>& players, int id, Logger& Log, int round) const = 0; 
+    virtual std::string role() const = 0;
+    virtual ~Player() = default;
+};
+
+
+class Mafia: public Player{
+    std::string role() const override { return "Мафиози"; }
+};
+
+
+class Civilian:public Player{
+    std::string role() const override { return "Мирный житель"; }
+};
+
+
+class Commissioner:public Player{
+    std::string role() const override { return "Комиссар"; }
+};
+
+
+class Maniac:public Player{
+    std::string role() const override { return "Маньяк"; }
+};
+

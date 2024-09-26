@@ -11,11 +11,10 @@
 #include <future>
 #include "mafia.cpp"
 #include <mutex>
-#include <string>
 #include <chrono>
 #include <ctime>
 #include <filesystem>
-#include <roles.cpp>
+#include "roles.cpp"
 
 
 class Logger {
@@ -39,7 +38,7 @@ public:
     }
 
     void logFinal(const std::string& final_log) {
-        std::ofstream final_file(log_directory / "final_results.log", std::ios::app);
+        std::ofstream final_file(log_directory / "result.log", std::ios::app);
         final_file << final_log << std::endl;
         final_file.close();
     }
@@ -61,15 +60,17 @@ public:
 
 
 
-std::unordered_map<int, mafia::shared_ptr<Player>> createPlayers(int numPlayers, bool includeUser) {
-    std::unordered_map<int, mafia::shared_ptr<Player>> players;
+std::map<int, mafia::shared_ptr<Player>> createPlayers(int numPlayers, bool includeUser) {
+    std::map<int, mafia::shared_ptr<Player>> players;
 
     // Примерный расчет количества мафий, при N/k, где k >= 3
     int numMafias = numPlayers / 3;
-
+ 
     for (int i = 0; i < numPlayers; ++i) {
         if (i < numMafias) {
+          
             players[i] = mafia::shared_ptr<Player>(new Mafia());
+  
         } else if (i == numMafias) {
             players[i] = mafia::shared_ptr<Player>(new Commissioner());
         } else if (i == numMafias + 1) {
@@ -79,9 +80,9 @@ std::unordered_map<int, mafia::shared_ptr<Player>> createPlayers(int numPlayers,
         }
     }
 
-    if (includeUser) {
+    /*if (includeUser) {
         players[numPlayers - 1] = mafia::shared_ptr<Player>(new Civilian()); // Пример: последний игрок - пользователь
-    }
+    }*/
 
 
     return players;
@@ -109,8 +110,11 @@ int main(){
 
     Logger logger;
     auto players = createPlayers(N, user_in);
-    Host host(logger, players);
-    host.startGame();
+    
+    for (const auto& pair: players){
+        const Player* player=pair.second.get();
+        std::cout << 'Player Id:'<<pair.first<<", Role:"<< player->role() <<std::endl;
+    }
 
     return 0;
 }
