@@ -15,7 +15,7 @@
 #include <ctime>
 #include <filesystem>
 #include "roles.cpp"
-
+#include "logger.cpp"
 
 
 
@@ -27,14 +27,18 @@ std::map<int, mafia::shared_ptr<Player>> createPlayers(int numPlayers,int helper
     // Примерный расчет количества мафий, при N/k, где k >= 3
     int numMafias = numPlayers / helper;
     for (int i = 0; i < numPlayers; ++i) {
-        if (i < numMafias) {
+        if (i < numMafias-1) {
             players[i] = mafia::shared_ptr<Player>(new Mafia());
+        }else if (i < numMafias) {
+            players[i] = mafia::shared_ptr<Player>(new AlCapone());
         } else if (i == numMafias) {
             players[i] = mafia::shared_ptr<Player>(new Commissioner());
         } else if (i == numMafias + 1) {
             players[i] = mafia::shared_ptr<Player>(new Maniac());
-        } else {
-            players[i] = mafia::shared_ptr<Player>(new Civilian());
+        } else if (i == numMafias + 2){
+            players[i] = mafia::shared_ptr<Player>(new Doctor());
+        }else{
+           players[i] = mafia::shared_ptr<Player>(new Civilian());
         }
     }
 

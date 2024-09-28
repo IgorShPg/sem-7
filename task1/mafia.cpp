@@ -1,6 +1,7 @@
 #include <iostream>
 #include <map>
 #include <memory>
+#pragma once
 
 namespace mafia {
     template<typename T>

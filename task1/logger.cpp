@@ -1,6 +1,7 @@
 #include <filesystem>
 #include <iostream>
 #include <fstream>
+#pragma once
 
 class Logger {
     std::filesystem::path log_directory;
