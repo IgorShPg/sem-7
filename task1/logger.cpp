@@ -23,7 +23,7 @@ public:
         }
     }
 
-    void logFinal(const std::string& final_log) {
+    void logresult(const std::string& final_log) {
         std::ofstream final_file(log_directory / "result.log", std::ios::app);
         final_file << final_log << std::endl;
         final_file.close();
