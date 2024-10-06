@@ -89,7 +89,7 @@ class Blade: public Player{
 
         for (const auto& pair: players){
             const Player* player=pair.second.get();
-            if(player->role() != "Мафиози" && player->role() != "Босс мафии" && player->role() != "Ниндзя" && chosenTarget==pair.first){
+            if(player->role() != "Мафиози" && player->role() != "Босс мафии" && player->role() != "Ниндзя" && player->role() != "Киллер" && chosenTarget==pair.first){
                 counter++;
             }
         }
@@ -144,7 +144,7 @@ class Ninja: public Player{
         std::vector<int> targets;
         for (const auto& pair: players){
             const Player* player=pair.second.get();
-            if(player->role() != "Мафиози" && player->role() != "Босс мафии" && player->role() != "Ниндзя"){
+            if(player->role() != "Мафиози" && player->role() != "Босс мафии" && player->role() != "Ниндзя" && player->role() != "Киллер"){
                 targets.push_back(pair.first);
             }
         }
@@ -162,7 +162,7 @@ class Ninja: public Player{
         std::vector<int> targets;
         for (const auto& pair: players){
             const Player* player=pair.second.get();
-            if(player->role() != "Мафиози" && player->role() != "Босс мафии" && player->role() != "Ниндзя"){
+            if(player->role() != "Мафиози" && player->role() != "Босс мафии" && player->role() != "Ниндзя" && player->role() != "Киллер"){
                 targets.push_back(pair.first);
             }
         }
@@ -266,7 +266,7 @@ class AlCapone: public Player{
         std::vector<int> targets;
         for (const auto& pair: players){
             const Player* player=pair.second.get();
-            if(player->role() != "Мафиози" && player->role() != "Босс мафии" && player->role() != "Ниндзя"){
+            if(player->role() != "Мафиози" && player->role() != "Босс мафии" && player->role() != "Ниндзя" && player->role() != "Киллер"){
                 targets.push_back(pair.first);
             }
         }
@@ -284,7 +284,7 @@ class AlCapone: public Player{
         std::vector<int> targets;
         for (const auto& pair: players){
             const Player* player=pair.second.get();
-            if(player->role() != "Мафиози" && player->role() != "Босс мафии" && player->role() != "Ниндзя"){
+            if(player->role() != "Мафиози" && player->role() != "Босс мафии" && player->role() != "Ниндзя" && player->role() != "Киллер"){
                 targets.push_back(pair.first);
             }
         }
@@ -321,7 +321,7 @@ class Mafia: public Player{
         std::vector<int> targets;
         for (const auto& pair: players){
             const Player* player=pair.second.get();
-            if(player->role() != "Мафиози" && player->role() != "Босс мафии" && player->role() != "Ниндзя"){
+            if(player->role() != "Мафиози" && player->role() != "Босс мафии" && player->role() != "Ниндзя" && player->role() != "Киллер"){
                 targets.push_back(pair.first);
             }
         }
@@ -339,7 +339,7 @@ class Mafia: public Player{
         std::vector<int> targets;
         for (const auto& pair: players){
             const Player* player=pair.second.get();
-            if(player->role() != "Мафиози" && player->role() != "Босс мафии" && player->role() != "Ниндзя"){
+            if(player->role() != "Мафиози" && player->role() != "Босс мафии" && player->role() != "Ниндзя" && player->role() != "Киллер"){
                 targets.push_back(pair.first);
             }
         }
@@ -366,6 +366,64 @@ class Mafia: public Player{
 
     std::string role() const override { return "Мафиози"; }
 };
+
+
+
+class Killer: public Player{
+    public:
+    long target = -1; 
+    long aim = -1;
+    int counter=0;
+    Move skill(const std::map<int, mafia::shared_ptr<Player>>& players, int id, Logger& logger, int round) override {
+        std::vector<int> targets;
+        for (const auto& pair: players){
+            const Player* player=pair.second.get();
+            if(player->role() != "Мафиози" && player->role() != "Босс мафии" && player->role() != "Ниндзя" && player->role() != "Киллер"){
+                targets.push_back(pair.first);
+            }
+        }
+        int chosenTarget = -1; 
+        if (!targets.empty()) {
+            chosenTarget = choice(targets);
+        }
+        const_cast<Killer*>(this)->target = chosenTarget;
+        logger.logRound(round, "Киллер "+ std::to_string(id) +" выбрал игрока " + std::to_string(chosenTarget) + " для убийства.");
+        //return chosenTarget;    
+        co_return;
+    }
+
+    Move vote(const std::map<int, mafia::shared_ptr<Player>>& players, int id, Logger& logger, int round)  override {
+        std::vector<int> targets;
+        for (const auto& pair: players){
+            const Player* player=pair.second.get();
+            if(player->role() != "Мафиози" && player->role() != "Босс мафии" && player->role() != "Ниндзя" && player->role() != "Киллер"){
+                targets.push_back(pair.first);
+            }
+        }
+        int chosenTarget = -1; 
+        if (!targets.empty()) {
+            chosenTarget = choice(targets);
+        }
+        const_cast<Killer*>(this)->target = chosenTarget;
+        logger.logRound(round, "Киллер "+ std::to_string(id) +" голосует за игрока " + std::to_string(chosenTarget) + ".");
+        //return chosenTarget;
+        co_return;
+    }
+    long getTarget() const override {
+        return target;
+    }
+
+    long getAim() const override{
+        return -1; 
+    }
+
+    int getCounter() const {
+        return -1; 
+    }
+
+    std::string role() const override { return "Киллер"; }
+};
+
 
 
 
@@ -439,7 +497,7 @@ class Commissioner:public Player{
                 chosenTarget = choice(targets); 
                 logger.logRound(round, "Комиссар "+ std::to_string(id) +" выбрал игрока " + std::to_string(chosenTarget) + " для проверки.");
                 const std::string& role = players.at(chosenTarget).get()->role();
-                if (role == "Мафиози" || role == "Босс мафии") {
+                if (role == "Мафиози" || role == "Босс мафии" || role=="Киллер") {
                     findm = chosenTarget;
                     logger.logRound(round, "Комиссар проверил игрока " + std::to_string(chosenTarget) + " и обнаружил, что он мафия.");
                 } else {

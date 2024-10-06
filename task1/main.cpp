@@ -80,10 +80,12 @@ std::map<int, mafia::shared_ptr<Player>> createPlayers(int numPlayers,int helper
     for (int i = 0; i < numPlayers; ++i) {
         if (i < 1) {
             players[i] = mafia::shared_ptr<Player>(new AlCapone());
-        }else if (i < numMafias-1) {
+        }else if (i < numMafias-2) {
             players[i] = mafia::shared_ptr<Player>(new Mafia());
-        } else if (i < numMafias) {
+        } else if (i < numMafias-1) {
             players[i] = mafia::shared_ptr<Player>(new Ninja());
+        }else if (i < numMafias) {
+            players[i] = mafia::shared_ptr<Player>(new Killer());
         }else if (i == numMafias) {
             players[i] = mafia::shared_ptr<Player>(new Commissioner());
         } else if (i == numMafias+1) {
@@ -121,7 +123,7 @@ bool check(std::map<int,mafia::shared_ptr<Player>>& players, Logger& logger) {
     int maniac = 0;
     for (const auto& pair: players){
         const Player* player=pair.second.get();
-        if (player->role() == "Мафиози" || player->role() == "Босс мафии") {
+        if (player->role() == "Мафиози" || player->role() == "Босс мафии" || player->role() == "Ниндзя" || player->role() == "Киллер") {
             mafia++;
         } 
         else if(player->role() == "Маньяк") {
@@ -285,6 +287,7 @@ void night(std::map<int, mafia::shared_ptr<Player>>& players, Logger& logger, in
     int ninja=-1;
     int blade =-1;
     int bladecounter=-1;
+    int killervoice = -1;
     std::vector<int> mafiasdesicion;
      std::vector<std::future<void>> futures;
      for (const auto& [id, player] : players) {
@@ -308,6 +311,7 @@ void night(std::map<int, mafia::shared_ptr<Player>>& players, Logger& logger, in
     int user_boss = -1;
     int user_ninja=-1;
     int user_blade=-1;
+    int user_killer = -1;
 
     if(user_in_game){
         if (players.find(user) == players.end()) {
@@ -374,6 +378,16 @@ void night(std::map<int, mafia::shared_ptr<Player>>& players, Logger& logger, in
                 std::cin >> target;
             }
             user_maniac=target;
+        }
+        else if(players[user].get()->role() == "Киллер"){
+            std::cout<<"Кого бы Вы хотели убить"<<std::endl;
+            int target;
+            std::cin >> target;
+            while(players.find(target) == players.end() || target==user){
+                std::cout << "ID введено некорректно" << std::endl;
+                std::cin >> target;
+            }
+            user_killer=target;
         }
         else if(players[user].get()->role() == "Блэйд"){
             std::cout<<"Кого бы Вы хотели убить"<<std::endl;
@@ -452,6 +466,7 @@ void night(std::map<int, mafia::shared_ptr<Player>>& players, Logger& logger, in
     ninja=getTargetIfAlive<Ninja>("Ниндзя",players);
     blade=getTargetIfAlive<Blade>("Блэйд",players);
     bladecounter=getCounterIfAlive<Blade>("Блэйд",players);
+    killervoice=getTargetIfAlive<Killer>("Киллер",players);
     
 
     if (donalive != -1) {
@@ -513,6 +528,11 @@ void night(std::map<int, mafia::shared_ptr<Player>>& players, Logger& logger, in
         maniacvoice=user_maniac;
     }
 
+
+     if(user_killer!=-1){
+        killervoice=user_killer;
+    }
+
     if(user_doctor!=-1){
         doctor=user_doctor;
     }
@@ -538,6 +558,11 @@ void night(std::map<int, mafia::shared_ptr<Player>>& players, Logger& logger, in
     if (comis != -1  && comis != doctor && comis!=bladealive) {
         players.erase(comis);
         logger.logRound(round, "Игрок " + std::to_string(comis) + " был убит комиссаром.");
+    }  
+
+    if (killervoice != -1  && killervoice != doctor && killervoice!=bladealive) {
+        players.erase(killervoice);
+        logger.logRound(round, "Игрок " + std::to_string(killervoice) + " был убит киллером.");
     }  
 
     if (blade != -1 && blade != doctor) {
