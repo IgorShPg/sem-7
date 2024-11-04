@@ -111,7 +111,7 @@ bool mafia::shared_ptr<T>::operator==(std::nullptr_t) const noexcept {
 template<typename T>
 mafia::shared_ptr<T>& mafia::shared_ptr<T>::operator=(const shared_ptr &obj) noexcept {
     if (this != &obj) {
-        if (--(*count) == 0) {
+        if (count && --(*count) == 0) {
             delete ptr;
             delete count;
         }
@@ -135,3 +135,19 @@ mafia::shared_ptr<T>& mafia::shared_ptr<T>::operator=(shared_ptr &&obj) noexcept
 }
 
 
+
+
+
+
+
+/*int main() {
+
+    {
+        std::cout << "---------- TEST 1 ----------" << std::endl;
+        mafia::shared_ptr<int> ptr1(new int{10});
+        std::cout << "ptr1.use_count() = " << ptr1.use_count() << std::endl;
+        ptr1.~shared_ptr();
+        std::cout << "ptr1.use_count() = " << ptr1.use_count() << std::endl;
+    }
+   
+}*/

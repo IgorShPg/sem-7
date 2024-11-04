@@ -340,7 +340,7 @@ void night(std::map<int, mafia::shared_ptr<Player>>& players, Logger& logger, in
                     std::cout << "ID введено некорректно" << std::endl;
                     std::cin >> target;
                 }
-                if (players[target].get()->role() == "Мафия" || players[target].get()->role() == "Босс мафии"){
+                if (players[target].get()->role() == "Мафиози" || players[target].get()->role() == "Босс мафии" || players[target].get()->role() == "Киллер"){
                     std::cout << "Выбранный игрок явялется мафией."<< std::endl;
                 }
                 else{
